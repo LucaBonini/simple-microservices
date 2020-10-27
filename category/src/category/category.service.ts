@@ -6,7 +6,7 @@ import { CreateOrUpdateCategoryDto } from 'src/category/dto/create-category-dto'
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
-export class DatabaseService {
+export class CategoryService {
   private db: lowdb.LowdbAsync<any>;
 
   constructor() {

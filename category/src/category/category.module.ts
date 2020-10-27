@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { CategoryController } from './category.controller';
-import { DatabaseService } from '../database/db.service'
+import { CategoryService } from './category.service'
 
 @Module({
   controllers: [CategoryController],
-  providers: [DatabaseService]
+  providers: [CategoryService]
 })
 export class CategoryModule {}

@@ -1,12 +1,12 @@
 import { Body, Controller, Get, Patch, Post, UsePipes, ValidationPipe, Param } from '@nestjs/common';
-import { DatabaseService } from '../database/db.service'
+import { CategoryService } from './category.service'
 import { Category } from './category.model';
 import { CreateOrUpdateCategoryDto } from './dto/create-category-dto';
 
 @Controller('category')
 export class CategoryController {
 
-  constructor(private dbService: DatabaseService) {}
+  constructor(private dbService: CategoryService) {}
 
   @Get()
   getCategories(): Promise<Category[]> {
