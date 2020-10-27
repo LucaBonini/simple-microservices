@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as lowdb from 'lowdb';
 import * as FileAsync from 'lowdb/adapters/FileAsync';
 import { Category } from 'src/category/category.model';
@@ -67,5 +67,18 @@ export class CategoryService {
 
     await this.db.set('categoty', newData).write()
     return foundCategory
+  }
+
+  async deleteCategory(id: string): Promise<void> {
+    let categories: Category[] = await this.db.get('category').value()
+
+    const foundCategory = categories.find(cat => cat.id === id)
+    if (!foundCategory) {
+      throw new HttpException('No category found', HttpStatus.BAD_REQUEST)
+    }
+
+    categories = categories.filter(category => category.id !== id)
+    // NEED TO CHECK THAT POST OR PRODUCT COUNT IS 0
+    await this.db.set('category', categories).write()
   }
 }

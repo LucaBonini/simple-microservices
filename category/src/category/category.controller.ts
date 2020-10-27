@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Post, UsePipes, ValidationPipe, Param } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, UsePipes, ValidationPipe, Param, Delete } from '@nestjs/common';
 import { CategoryService } from './category.service'
 import { Category } from './category.model';
 import { CreateOrUpdateCategoryDto } from './dto/create-category-dto';
@@ -6,22 +6,22 @@ import { CreateOrUpdateCategoryDto } from './dto/create-category-dto';
 @Controller('category')
 export class CategoryController {
 
-  constructor(private dbService: CategoryService) {}
+  constructor(private categoryService: CategoryService) {}
 
   @Get()
   getCategories(): Promise<Category[]> {
-    return this.dbService.findAll()
+    return this.categoryService.findAll()
   }
 
   @Get('/:id')
   getCategoryById(@Param('id') id: string): Promise<Category | null> {
-    return this.dbService.findOneById(id)
+    return this.categoryService.findOneById(id)
   }
 
   @Post()
   @UsePipes(ValidationPipe)
   createCategory(@Body() createCategoryDto: CreateOrUpdateCategoryDto): Promise<Category> {
-    return this.dbService.create(createCategoryDto)
+    return this.categoryService.create(createCategoryDto)
   }
 
   @Patch('/:id/name')
@@ -31,6 +31,11 @@ export class CategoryController {
     @Body() categoryUpdate: CreateOrUpdateCategoryDto
   ): Promise<Category> {
     const { name } = categoryUpdate
-    return this.dbService.updateCategoryName(id, name)
+    return this.categoryService.updateCategoryName(id, name)
+  }
+
+  @Delete('/:id')
+  async deleteCategory(@Param('id') id: string): Promise<void> {
+    return this.categoryService.deleteCategory(id)
   }
 }
