@@ -13,7 +13,7 @@ export class CategoryService {
     this.initDb()
   }
   
-  async initDb() {
+  async initDb(): Promise<void> {
     const adapter = new FileAsync('db.json')
     this.db = await lowdb(adapter)
     
@@ -30,9 +30,15 @@ export class CategoryService {
   }
 
   async findOneById(id: string): Promise<Category> {
-    const category: Category[] = await this.db.get('category').value()
+    const categories: Category[] = await this.db.get('category').value()
 
-    return category.find(obj => obj.id === id)
+    const categoryFound = categories.find(obj => obj.id === id)
+    
+    if (!categoryFound) {
+      throw new HttpException(`No category with id ${id} found`, HttpStatus.BAD_REQUEST)
+    }
+
+    return categoryFound
   }
 
   async create(category: CreateOrUpdateCategoryDto): Promise<Category> {
@@ -59,6 +65,8 @@ export class CategoryService {
 
     const foundCategory = categories.find(cat => cat.id === id)
     foundCategory.name = name
+
+    // add error if category not found
 
     const newData = categories.map(cat => {
       if (cat.id !== id) return cat
