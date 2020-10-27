@@ -1,5 +1,5 @@
 {
-  "name": "category",
+  "name": "product",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -23,10 +23,18 @@
   "dependencies": {
     "@nestjs/common": "^7.0.0",
     "@nestjs/core": "^7.0.0",
+    "@nestjs/microservices": "^7.4.4",
     "@nestjs/platform-express": "^7.0.0",
+    "@types/lowdb": "^1.0.9",
+    "class-transformer": "^0.3.1",
+    "class-validator": "^0.12.2",
+    "i": "^0.3.6",
+    "lowdb": "^1.0.0",
+    "redis": "^3.0.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^6.5.4"
+    "rxjs": "^6.5.4",
+    "uuid": "^8.3.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.0.0",
