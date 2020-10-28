@@ -8,6 +8,10 @@ interface Product {
   category: string
 }
 
+interface PostType {
+  category: string
+}
+
 @Controller('category')
 export class CategoryController {
 
@@ -49,7 +53,7 @@ export class CategoryController {
     if (product.category) {
       const res: Category = await this.categoryService.findOneById(product.category)
       if (res) {
-        await this.categoryService.updateProductCount(res, 'subtract')
+        await this.categoryService.updateEntityCount(res, 'PRODUCT', 'subtract')
       }
     }
   }
@@ -59,7 +63,7 @@ export class CategoryController {
     if (product.category) {
       const res: Category = await this.categoryService.findOneById(product.category)
       if (res) {
-        await this.categoryService.updateProductCount(res, 'add')
+        await this.categoryService.updateEntityCount(res, 'PRODUCT', 'add')
       }
     }
   }
@@ -71,6 +75,26 @@ export class CategoryController {
       return !!res
     } catch (error) {
       return false
+    }
+  }
+
+  @MessagePattern('post_added')
+  async addPostcount(post: PostType): Promise<void> {
+    if (post.category) {
+      const res: Category = await this.categoryService.findOneById(post.category)
+      if (res) {
+        await this.categoryService.updateEntityCount(res, 'POST', 'add')
+      }
+    }
+  }
+
+  @MessagePattern('post_removed')
+  async subtractPostCount(post: PostType): Promise<void> {
+    if (post.category) {
+      const res: Category = await this.categoryService.findOneById(post.category)
+      if (res) {
+        await this.categoryService.updateEntityCount(res, 'POST', 'subtract')
+      }
     }
   }
 }

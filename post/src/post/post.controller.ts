@@ -1,7 +1,7 @@
 import { Controller, Get, Post, ValidationPipe, UsePipes, Body, Put, Param, Delete } from '@nestjs/common';
 import { PostService } from './post.service'
 import {Post as PostType } from './post.model'
-import { CreateOrupdatePostDto } from './dto/create-post-dto';
+import { CreatePostDto, UpdatePostDto } from './dto/post-dto';
 
 @Controller('post')
 export class PostController {
@@ -20,7 +20,7 @@ export class PostController {
 
   @Post()
   @UsePipes(ValidationPipe)
-  create(@Body() createPostDto: CreateOrupdatePostDto): Promise<PostType> {
+  create(@Body() createPostDto: CreatePostDto): Promise<PostType> {
     return this.postService.create(createPostDto)
   }
 
@@ -28,7 +28,7 @@ export class PostController {
   @UsePipes(ValidationPipe)
   updatePost(
     @Param('id') id: string,
-    @Body() body : CreateOrupdatePostDto
+    @Body() body : UpdatePostDto
   ): Promise<PostType> {
     return this.postService.updatePost(body, id)
   }

@@ -5,6 +5,10 @@ import { Category } from 'src/category/category.model';
 import { CreateOrUpdateCategoryDto } from 'src/category/dto/create-category-dto';
 import { v4 as uuidv4 } from 'uuid';
 
+enum EntityField {
+  PRODUCT = 'productCount',
+  POST = 'postCount'
+}
 @Injectable()
 export class CategoryService {
   private db: lowdb.LowdbAsync<any>;
@@ -33,12 +37,10 @@ export class CategoryService {
     const categories: Category[] = await this.db.get('category').value()
 
     const categoryFound = categories.find(obj => obj.id === id)
-    console.log(categories, 'categories')
-    console.log(categoryFound, 'categoriesFound')
     if (!categoryFound) {
       throw new HttpException(`No category with id ${id} found`, HttpStatus.BAD_REQUEST)
     }
-    console.log('AFTER ERROR')
+
     return categoryFound
   }
 
@@ -94,10 +96,11 @@ export class CategoryService {
     }
   }
 
-  async updateProductCount(category: Category, operation: string): Promise<boolean> {
+  async updateEntityCount(category: Category, entity: string, operation: string): Promise<boolean> {
+    const field = EntityField[entity]
     const updatedCategory = {
       ...category,
-      productCount: (operation == 'add') ? ++category.productCount : --category.productCount
+      [field]: (operation == 'add') ? ++category[field] : --category[field]
     }
     const categories = await this.findAll()
     const data = categories.map(cat => {

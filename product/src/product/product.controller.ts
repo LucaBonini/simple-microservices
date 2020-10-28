@@ -1,5 +1,5 @@
 import { Controller, Get, Param, ValidationPipe, UsePipes, Body, Post, Put, Delete } from '@nestjs/common';
-import { CreateProductDto, UpdateProductDto } from './dto/create-product-dto';
+import { CreateProductDto, UpdateProductDto } from './dto/product-dto';
 import { Product } from './product.model';
 import { ProductService } from './product.service'
 

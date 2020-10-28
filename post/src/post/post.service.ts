@@ -3,14 +3,24 @@ import * as lowdb from 'lowdb';
 import * as FileAsync from 'lowdb/adapters/FileAsync';
 import { v4 as uuidv4 } from 'uuid';
 import { Post } from '../post/post.model'
-import { CreateOrupdatePostDto } from './dto/create-post-dto';
+import { CreatePostDto, UpdatePostDto } from './dto/post-dto';
+import { ClientOptions, ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices'
+
+const microservicesOptions: ClientOptions = {
+  transport: Transport.REDIS,
+  options: {
+    url: 'redis://localhost:1111'
+  }
+}
 
 @Injectable()
 export class PostService {
-  private db: lowdb.LowdbAsync<any>;
+  private db: lowdb.LowdbAsync<any>
+  private client: ClientProxy
 
   constructor() {
     this.initDb()
+    this.client = ClientProxyFactory.create(microservicesOptions)
   }
 
   async initDb(): Promise<void> {
@@ -39,12 +49,10 @@ export class PostService {
     return foundPost
   }
 
-  async create(post: CreateOrupdatePostDto): Promise<Post> {
+  async create(post: CreatePostDto): Promise<Post> {
     const data = this.db.get('post').value()
 
     const { title, body, category } = post
-    
-    // check if category exists
 
     let newPost: Post = {
       id: uuidv4(),
@@ -57,17 +65,31 @@ export class PostService {
 
     await this.db.set('post', data).write()
 
-    // emit post created event
+    this.client.send<void, Post>(
+      'post_added',
+      newPost
+    ).toPromise()
 
     return newPost
   }
 
   // check later maybe is not good CreatePostDto
-  async updatePost(update: CreateOrupdatePostDto, id: string): Promise<Post> {
+  async updatePost(update: UpdatePostDto, id: string): Promise<Post> {
     let posts: Post[] = this.db.get('post').value()
     const foundPost = posts.find(post => post.id === id)
     if (!foundPost) {
       throw new HttpException(`No post with id ${id} found`, HttpStatus.BAD_REQUEST)
+    }
+
+    if (update.category) {
+      const categoryExist = await this.client.send<boolean, string>(
+        'category_exists',
+        update.category
+      ).toPromise()
+
+      if (!categoryExist) {
+        throw new HttpException(`No product with category id ${update.category} found`, HttpStatus.BAD_REQUEST)
+      }
     }
 
     const newPost: Post = {
@@ -94,5 +116,10 @@ export class PostService {
     posts = posts.filter(post => post.id !== postFound.id)
 
     await this.db.set('category', posts).write()
+    
+    await this.client.send<void, Post>(
+      'post_removed',
+      postFound
+    ).toPromise()
   }
 }
