@@ -1,24 +1,25 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+// import { AppModule } from './../src/app.module';
+import { CategoryModule } from '../src/category/category.module'
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [CategoryModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
   });
 
+  // NOT WORKING BECAUSE OF DEPENDECIES
   it('/ (GET)', () => {
     return request(app.getHttpServer())
-      .get('/')
+      .get('/category')
       .expect(200)
-      .expect('Hello World!');
   });
 });
