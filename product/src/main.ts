@@ -7,7 +7,7 @@ async function bootstrap() {
   const microservice = app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.REDIS,
     options: {
-      url: 'redis://redis:6379'
+      url: `redis://${process.env.DOCKER == "true" ? 'redis' : 'localhost'}:6379`
     }
   })
   await app.startAllMicroservicesAsync();

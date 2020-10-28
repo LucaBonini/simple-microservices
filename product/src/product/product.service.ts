@@ -8,7 +8,7 @@ import { DatabaseService } from '../database/database.service'
 const microservicesOptions: ClientOptions = {
   transport: Transport.REDIS,
   options: {
-    url: 'redis://redis:6379'
+    url: `redis://${process.env.DOCKER == "true" ? 'redis' : 'localhost'}:6379`
   }
 }
 
