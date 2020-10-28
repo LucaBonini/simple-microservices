@@ -3,14 +3,24 @@ import * as lowdb from 'lowdb';
 import * as FileAsync from 'lowdb/adapters/FileAsync';
 import { v4 as uuidv4 } from 'uuid';
 import { Product } from './product.model';
-import { CreateOrUpdateProductDto } from './dto/create-product-dto'
+import { CreateProductDto, UpdateProductDto } from './dto/create-product-dto'
+import { ClientOptions, ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices'
+
+const microservicesOptions: ClientOptions = {
+  transport: Transport.REDIS,
+  options: {
+    url: 'redis://localhost:1111'
+  }
+}
 
 @Injectable()
 export class ProductService {
-  private db: lowdb.LowdbAsync<any>;
+  private db: lowdb.LowdbAsync<any>
+  private client: ClientProxy
 
   constructor() {
     this.initDb()
+    this.client = ClientProxyFactory.create(microservicesOptions)
   }
 
   async initDb() {
@@ -41,10 +51,10 @@ export class ProductService {
     return productFound
   }
 
-  async create(product: CreateOrUpdateProductDto): Promise<Product> {
+  async create(product: CreateProductDto): Promise<Product> {
     const data = this.db.get('product').value()
-
     const { name, price, category } = product
+
     let newProduct: Product = {
       id: uuidv4(),
       name,
@@ -56,15 +66,29 @@ export class ProductService {
 
     await this.db.set('product', data).write()
 
+    await this.client.send<void, Product>(
+      'product_added',
+      newProduct
+    ).toPromise()
     return newProduct
   }
 
-   // check later maybe is not good CreatePostDto
-   async updateProduct(update: CreateOrUpdateProductDto, id: string): Promise<Product> {
+   async updateProduct(update: UpdateProductDto, id: string): Promise<Product> {
     let products: Product[] = this.db.get('product').value()
     const foundProduct = products.find(prod => prod.id === id)
     if (!foundProduct) {
       throw new HttpException(`No product with id ${id} found`, HttpStatus.BAD_REQUEST)
+    }
+
+    if (update.category) {
+      const categoryExist = await this.client.send<boolean, string>(
+        'category_exists',
+        update.category
+      ).toPromise()
+
+      if (!categoryExist) {
+        throw new HttpException(`No product with category id ${update.category} found`, HttpStatus.BAD_REQUEST)
+      }
     }
 
     const newProduct: Product = {
@@ -89,7 +113,13 @@ export class ProductService {
     }
 
     products = products.filter(prod => prod.id !== productFound.id)
-
+    
     await this.db.set('product', products).write()
+
+    await this.client.send<void, Product>(
+      'product_removed',
+      productFound
+    ).toPromise()
+
   }
 }

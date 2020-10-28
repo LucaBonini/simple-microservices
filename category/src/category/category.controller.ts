@@ -2,6 +2,11 @@ import { Body, Controller, Get, Patch, Post, UsePipes, ValidationPipe, Param, De
 import { CategoryService } from './category.service'
 import { Category } from './category.model';
 import { CreateOrUpdateCategoryDto } from './dto/create-category-dto';
+import { MessagePattern } from '@nestjs/microservices';
+
+interface Product {
+  category: string
+}
 
 @Controller('category')
 export class CategoryController {
@@ -37,5 +42,35 @@ export class CategoryController {
   @Delete('/:id')
   deleteCategory(@Param('id') id: string): Promise<void> {
     return this.categoryService.deleteCategory(id)
+  }
+
+  @MessagePattern('product_removed')
+  async subtractProductCount(product: Product): Promise<void> {
+    if (product.category) {
+      const res: Category = await this.categoryService.findOneById(product.category)
+      if (res) {
+        await this.categoryService.updateProductCount(res, 'subtract')
+      }
+    }
+  }
+
+  @MessagePattern('product_added')
+  async addProductCount(product: Product): Promise<void> {
+    if (product.category) {
+      const res: Category = await this.categoryService.findOneById(product.category)
+      if (res) {
+        await this.categoryService.updateProductCount(res, 'add')
+      }
+    }
+  }
+
+  @MessagePattern('category_exists')
+  async categoryExist(id: string): Promise<boolean> {
+    try {
+      const res: Category = await this.categoryService.findOneById(id)
+      return !!res
+    } catch (error) {
+      return false
+    }
   }
 }

@@ -1,3 +1,57 @@
 {
-  "product": []
+  "product": [
+    {
+      "id": "b6dd2d56-04e6-4171-a33b-2f6a145f6230",
+      "name": "merda",
+      "price": "123",
+      "category": "d9f8ef62-e07d-4e1d-9a08-1986acd1b966"
+    },
+    {
+      "id": "62ef2ca4-c3c4-4463-abf8-6f714ae8f853",
+      "name": "CCCCC",
+      "price": "1112323",
+      "category": "d9f8ef62-e07d-4e1d-9a08-1986acd1b966"
+    },
+    {
+      "id": "e0e82b60-5a9f-4a3c-9673-3f4a54dc4e3f",
+      "name": "CCCCC",
+      "price": "1112323",
+      "category": "d9f8ef62-e07d-4e1d-9a08-1986acd1b966"
+    },
+    {
+      "id": "a36c66ee-173b-4b1f-acae-333da7007c0f",
+      "name": "CCCCC",
+      "price": "1112323",
+      "category": "d9f8ef62-e07d-4e1d-9a08-1986acd1b966"
+    },
+    {
+      "id": "16944d2a-3bcd-4da0-ac4b-a4b6297b218a",
+      "name": "DDDD",
+      "price": "1112323",
+      "category": "d9f8ef62-e07d-4e1d-9a08-1986acd1b966"
+    },
+    {
+      "id": "2fa19df4-23fd-4e1d-bebf-6fb38b8643c2",
+      "name": "DDDD",
+      "price": "1112323",
+      "category": "d9f8ef62-e07d-4e1d-9a08-1986acd1b966"
+    },
+    {
+      "id": "66168f27-b4de-4d64-904d-de11b2058935",
+      "name": "DDDD",
+      "price": "1112323",
+      "category": "d9f8ef62-e07d-4e1d-9a08-1986acd1b966"
+    },
+    {
+      "id": "7adc74b7-2585-4f14-8fc7-9092a6409bc1",
+      "name": "DDDD",
+      "price": "1112323",
+      "category": "d9f8ef62-e07d-4e1d-9a08-1986acd1b966"
+    },
+    {
+      "id": "17c0f1d8-7591-47cd-82d2-5c6fb5766056",
+      "name": "DDDD",
+      "price": "1112323"
+    }
+  ]
 }

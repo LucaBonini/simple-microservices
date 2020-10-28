@@ -33,11 +33,12 @@ export class CategoryService {
     const categories: Category[] = await this.db.get('category').value()
 
     const categoryFound = categories.find(obj => obj.id === id)
-    
+    console.log(categories, 'categories')
+    console.log(categoryFound, 'categoriesFound')
     if (!categoryFound) {
       throw new HttpException(`No category with id ${id} found`, HttpStatus.BAD_REQUEST)
     }
-
+    console.log('AFTER ERROR')
     return categoryFound
   }
 
@@ -85,8 +86,26 @@ export class CategoryService {
       throw new HttpException('No category found', HttpStatus.BAD_REQUEST)
     }
 
-    categories = categories.filter(category => category.id !== id)
-    // NEED TO CHECK THAT POST OR PRODUCT COUNT IS 0
-    await this.db.set('category', categories).write()
+    if(!foundCategory.productCount && !foundCategory.postCount) {
+      categories = categories.filter(category => category.id !== id)
+      await this.db.set('category', categories).write()
+    } else {
+      throw new HttpException('Category has products or posts', HttpStatus.FORBIDDEN)
+    }
+  }
+
+  async updateProductCount(category: Category, operation: string): Promise<boolean> {
+    const updatedCategory = {
+      ...category,
+      productCount: (operation == 'add') ? ++category.productCount : --category.productCount
+    }
+    const categories = await this.findAll()
+    const data = categories.map(cat => {
+      if (cat.id !== updatedCategory.id) return cat
+      else return updatedCategory
+    })
+
+    await this.db.set('category', data).write()
+    return true
   }
 }
