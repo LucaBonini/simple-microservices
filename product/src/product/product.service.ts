@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Product } from './product.model';
 import { CreateProductDto, UpdateProductDto } from './dto/product-dto'
 import { ClientOptions, ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices'
+import { DatabaseService } from '../database/database.service'
 
 const microservicesOptions: ClientOptions = {
   transport: Transport.REDIS,
@@ -15,35 +16,18 @@ const microservicesOptions: ClientOptions = {
 
 @Injectable()
 export class ProductService {
-  private db: lowdb.LowdbAsync<any>
   private client: ClientProxy
 
-  constructor() {
-    this.initDb()
+  constructor(private db: DatabaseService ) {
     this.client = ClientProxyFactory.create(microservicesOptions)
   }
 
-  async initDb() {
-    const adapter = new FileAsync('db.json')
-    this.db = await lowdb(adapter)
-    
-    const productData = await this.db.get('product').value()
-
-    if (!productData) {
-      await this.db.set('product',[]).write()
-    }
-  }
-
   async findAll(): Promise<Product[]> {
-    const products: Product[] = await this.db.get('product').value()
-    return products
+    return this.db.findAll<Product>()
   }
 
   async findOneById(id: string): Promise<Product> {
-    const products: Product[] = await this.db.get('product').value()
-
-    const productFound = products.find(obj => obj.id === id)
-    
+    const productFound = await this.db.findOneById<Product>(id)
     if (!productFound) {
       throw new HttpException(`No product with id ${id} found`, HttpStatus.BAD_REQUEST)
     }
@@ -52,7 +36,7 @@ export class ProductService {
   }
 
   async create(product: CreateProductDto): Promise<Product> {
-    const data = this.db.get('product').value()
+    
     const { name, price, category } = product
 
     let newProduct: Product = {
@@ -62,23 +46,17 @@ export class ProductService {
       category
     }
 
-    data.push(newProduct)
-
-    await this.db.set('product', data).write()
+    const res = await this.db.create<Product>(newProduct)
 
     this.client.send<void, Product>(
       'product_added',
       newProduct
     ).toPromise()
-    return newProduct
+
+    return res
   }
 
    async updateProduct(update: UpdateProductDto, id: string): Promise<Product> {
-    let products: Product[] = this.db.get('product').value()
-    const foundProduct = products.find(prod => prod.id === id)
-    if (!foundProduct) {
-      throw new HttpException(`No product with id ${id} found`, HttpStatus.BAD_REQUEST)
-    }
 
     if (update.category) {
       const categoryExist = await this.client.send<boolean, string>(
@@ -91,35 +69,29 @@ export class ProductService {
       }
     }
 
-    const newProduct: Product = {
-      ...foundProduct,
-      ...update
+    const updateProduct = await this.db.updateOne<Product>(id, update)
+
+    if (!updateProduct) {
+        throw new HttpException(`No product with id ${id} found`, HttpStatus.BAD_REQUEST)
     }
 
-    products = products.map(prod => {
-      return (prod.id === newProduct.id) ? newProduct : prod
-    })
-
-    await this.db.set('product', products).write()
-
-    return newProduct
+    return updateProduct
   }
 
-  async deleteProduct(id: string): Promise<void> {
-    let products: Product[] = await this.db.get('product').value()
-    const productFound = products.find(prod => prod.id === id)
-    if (!productFound) {
-      throw new HttpException('No prod found', HttpStatus.BAD_REQUEST)
-    }
-
-    products = products.filter(prod => prod.id !== productFound.id)
+  async deleteProduct(id: string): Promise<boolean> {    
     
-    await this.db.set('product', products).write()
+    const product = await this.db.findOneById<Product>(id)
+    
+    const res = await this.db.deleteOne<Product>(id)
+    if (!res) {
+      throw new HttpException(`No product with id ${id} found`, HttpStatus.BAD_REQUEST)
+    }
 
     this.client.send<void, Product>(
       'product_removed',
-      productFound
+      product
     ).toPromise()
-
+    
+    return res
   }
 }

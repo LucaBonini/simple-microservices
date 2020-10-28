@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Post } from '../post/post.model'
 import { CreatePostDto, UpdatePostDto } from './dto/post-dto';
 import { ClientOptions, ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices'
+import { DatabaseService } from '../database/database.service'
 
 const microservicesOptions: ClientOptions = {
   transport: Transport.REDIS,
@@ -15,42 +16,26 @@ const microservicesOptions: ClientOptions = {
 
 @Injectable()
 export class PostService {
-  private db: lowdb.LowdbAsync<any>
   private client: ClientProxy
 
-  constructor() {
-    this.initDb()
+  constructor(private db: DatabaseService) {
     this.client = ClientProxyFactory.create(microservicesOptions)
   }
 
-  async initDb(): Promise<void> {
-    const adapter = new FileAsync('db.json')
-    this.db = await lowdb(adapter)
-    
-    const postData = await this.db.get('post').value()
-
-    if (!postData) {
-      await this.db.set('post',[]).write()
-    }
-  }
-
   async findAll(): Promise<Post[]> {
-    const posts: Post[] = await this.db.get('post').value()
-    return posts
+    return this.db.findAll<Post>()
   }
 
   async findOneById(id: string): Promise<Post> {
-    const posts: Post[] = await this.db.get('post').value()
-
-    let foundPost = posts.find(obj => obj.id === id)
-    if (!foundPost) {
+    const postFound = await this.db.findOneById<Post>(id)
+    if (!postFound) {
       throw new HttpException(`No post with id ${id} found`, HttpStatus.BAD_REQUEST)
     }
-    return foundPost
+
+    return postFound
   }
 
   async create(post: CreatePostDto): Promise<Post> {
-    const data = this.db.get('post').value()
 
     const { title, body, category } = post
 
@@ -61,25 +46,18 @@ export class PostService {
       category
     }
 
-    data.push(newPost)
-
-    await this.db.set('post', data).write()
+    const res = await this.db.create<Post>(newPost)
 
     this.client.send<void, Post>(
       'post_added',
       newPost
-    )
+    ).toPromise()
 
-    return newPost
+    return res
   }
 
   // check later maybe is not good CreatePostDto
   async updatePost(update: UpdatePostDto, id: string): Promise<Post> {
-    let posts: Post[] = this.db.get('post').value()
-    const foundPost = posts.find(post => post.id === id)
-    if (!foundPost) {
-      throw new HttpException(`No post with id ${id} found`, HttpStatus.BAD_REQUEST)
-    }
 
     if (update.category) {
       const categoryExist = await this.client.send<boolean, string>(
@@ -92,35 +70,28 @@ export class PostService {
       }
     }
 
-    const newPost: Post = {
-      ...foundPost,
-      ...update
+    const updatedPost = await this.db.updateOne<Post>(id, update)
+    if (!updatedPost) {
+      throw new HttpException(`No post with id ${id} found`, HttpStatus.BAD_REQUEST)
     }
 
-    posts = posts.map(post => {
-      return (post.id === newPost.id) ? newPost : post
-    })
-
-    await this.db.set('post', posts).write()
-
-    return newPost
+    return updatedPost
   }
 
-  async deletePost(id: string): Promise<void> {
-    let posts: Post[] = await this.db.get('post').value()
+  async deletePost(id: string): Promise<boolean> {
 
-    const postFound = posts.find(post => post.id === id)
-    if (!postFound) {
-      throw new HttpException('No post found', HttpStatus.BAD_REQUEST)
+    const post = await this.db.findOneById<Post>(id)
+
+    const res = await this.db.deleteOne<Post>(id)
+    if (!res) {
+      throw new HttpException(`No post with id ${id} found`, HttpStatus.BAD_REQUEST)
     }
 
-    posts = posts.filter(post => post.id !== postFound.id)
-
-    await this.db.set('category', posts).write()
-    
     this.client.send<void, Post>(
       'post_removed',
-      postFound
+      post
     ).toPromise()
+
+    return res
   }
 }

@@ -34,7 +34,7 @@ export class PostController {
   }
 
   @Delete('/:id')
-  deletePost(@Param('id') id: string): Promise<void> {
+  deletePost(@Param('id') id: string): Promise<boolean> {
     return this.postService.deletePost(id)
   }
 }

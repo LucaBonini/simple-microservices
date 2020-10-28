@@ -4,6 +4,7 @@ import * as FileAsync from 'lowdb/adapters/FileAsync';
 import { Category } from 'src/category/category.model';
 import { CreateOrUpdateCategoryDto } from 'src/category/dto/create-category-dto';
 import { v4 as uuidv4 } from 'uuid';
+import { DatabaseService } from '../database/database.service'
 
 enum EntityField {
   PRODUCT = 'productCount',
@@ -11,32 +12,15 @@ enum EntityField {
 }
 @Injectable()
 export class CategoryService {
-  private db: lowdb.LowdbAsync<any>;
 
-  constructor() {
-    this.initDb()
-  }
-  
-  async initDb(): Promise<void> {
-    const adapter = new FileAsync('db.json')
-    this.db = await lowdb(adapter)
-    
-    const categoydata = await this.db.get('category').value()
-
-    if (!categoydata) {
-      await this.db.set('category',[]).write()
-    }
-  }
+  constructor(private db: DatabaseService) {}
 
   async findAll(): Promise<Category[]> {
-    const categories: Category[] = await this.db.get('category').value()
-    return categories
+    return this.db.findAll<Category>()
   }
 
   async findOneById(id: string): Promise<Category> {
-    const categories: Category[] = await this.db.get('category').value()
-
-    const categoryFound = categories.find(obj => obj.id === id)
+    const categoryFound = await this.db.findOneById<Category>(id)
     if (!categoryFound) {
       throw new HttpException(`No category with id ${id} found`, HttpStatus.BAD_REQUEST)
     }
@@ -45,7 +29,6 @@ export class CategoryService {
   }
 
   async create(category: CreateOrUpdateCategoryDto): Promise<Category> {
-    const data = this.db.get('category').value()
 
     const { name } = category
     let newCategory: Category = {
@@ -55,42 +38,29 @@ export class CategoryService {
       name
     }
 
-    data.push(newCategory)
-
-    await this.db.set('category', data).write()
+    await this.db.create<Category>(newCategory)
 
     return newCategory
   }
 
   async updateCategoryName(id: string, name: string): Promise<Category> {
 
-    const categories: Category[] = await this.db.get('category').value()
-
-    const foundCategory = categories.find(cat => cat.id === id)
-    foundCategory.name = name
-
-    // add error if category not found
-
-    const newData = categories.map(cat => {
-      if (cat.id !== id) return cat
-      else return foundCategory
-    })
-
-    await this.db.set('categoty', newData).write()
-    return foundCategory
+    const updatedCategory = await this.db.updateOne<Category>(id, { name })
+    if (!updatedCategory) {
+      throw new HttpException('No category found', HttpStatus.BAD_REQUEST)
+    }
+    return updatedCategory
   }
 
-  async deleteCategory(id: string): Promise<void> {
-    let categories: Category[] = await this.db.get('category').value()
+  async deleteCategory(id: string): Promise<boolean> {
 
-    const foundCategory = categories.find(cat => cat.id === id)
+    const foundCategory = await this.db.findOneById<Category>(id)
     if (!foundCategory) {
       throw new HttpException('No category found', HttpStatus.BAD_REQUEST)
     }
 
     if(!foundCategory.productCount && !foundCategory.postCount) {
-      categories = categories.filter(category => category.id !== id)
-      await this.db.set('category', categories).write()
+      return await this.db.deleteOne<Category>(id)
     } else {
       throw new HttpException('Category has products or posts', HttpStatus.FORBIDDEN)
     }
@@ -102,13 +72,8 @@ export class CategoryService {
       ...category,
       [field]: (operation == 'add') ? ++category[field] : --category[field]
     }
-    const categories = await this.findAll()
-    const data = categories.map(cat => {
-      if (cat.id !== updatedCategory.id) return cat
-      else return updatedCategory
-    })
 
-    await this.db.set('category', data).write()
-    return true
+    const res = await this.db.updateOne<Category>(updatedCategory.id, updatedCategory)
+    return 
   }
 }
