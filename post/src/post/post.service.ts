@@ -68,7 +68,7 @@ export class PostService {
     this.client.send<void, Post>(
       'post_added',
       newPost
-    ).toPromise()
+    )
 
     return newPost
   }
@@ -108,6 +108,7 @@ export class PostService {
 
   async deletePost(id: string): Promise<void> {
     let posts: Post[] = await this.db.get('post').value()
+
     const postFound = posts.find(post => post.id === id)
     if (!postFound) {
       throw new HttpException('No post found', HttpStatus.BAD_REQUEST)
@@ -117,7 +118,7 @@ export class PostService {
 
     await this.db.set('category', posts).write()
     
-    await this.client.send<void, Post>(
+    this.client.send<void, Post>(
       'post_removed',
       postFound
     ).toPromise()

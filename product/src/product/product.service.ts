@@ -66,7 +66,7 @@ export class ProductService {
 
     await this.db.set('product', data).write()
 
-    await this.client.send<void, Product>(
+    this.client.send<void, Product>(
       'product_added',
       newProduct
     ).toPromise()
@@ -116,7 +116,7 @@ export class ProductService {
     
     await this.db.set('product', products).write()
 
-    await this.client.send<void, Product>(
+    this.client.send<void, Product>(
       'product_removed',
       productFound
     ).toPromise()
