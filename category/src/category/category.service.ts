@@ -1,6 +1,4 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import * as lowdb from 'lowdb';
-import * as FileAsync from 'lowdb/adapters/FileAsync';
 import { Category } from 'src/category/category.model';
 import { CreateOrUpdateCategoryDto } from 'src/category/dto/create-category-dto';
 import { v4 as uuidv4 } from 'uuid';
