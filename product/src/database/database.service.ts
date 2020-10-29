@@ -64,10 +64,10 @@ export class DatabaseService {
 
   async updateOne<T extends Value>(id: string, newData: any): Promise<T | undefined> {
     const values = await this.findAll<T>()
-
+    let newValue
     const foundValue = values.find(val => val.id === id)
     if (foundValue) {
-      const newValue = {
+      newValue = {
         ...foundValue,
         ...newData
       }
@@ -79,6 +79,6 @@ export class DatabaseService {
   
       await this.db.set(this.dataStore, newValues).write()
     }
-    return foundValue
+    return newValue
   }
 }

@@ -57,6 +57,9 @@ export class ProductService {
    async updateProduct(update: UpdateProductDto, id: string): Promise<Product> {
 
     if (update.category) {
+      // I miss to handle the case of changing category
+      // when update.category !== originalProduct.category
+      // need to send a message to category and increase or decrease productCount
       const categoryExist = await this.client.send<boolean, string>(
         'category_exists',
         update.category

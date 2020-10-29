@@ -12,6 +12,7 @@ export class CreatePostDto {
 }
 
 export class UpdatePostDto {
+
   @IsOptional()
   title: string
 

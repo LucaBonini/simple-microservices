@@ -54,10 +54,12 @@ export class PostService {
     return res
   }
 
-  // check later maybe is not good CreatePostDto
   async updatePost(update: UpdatePostDto, id: string): Promise<Post> {
 
     if (update.category) {
+      // I miss to handle the case of changing category
+      // when update.category !== originalPost.category
+      // need to send a message to category and increase or decrease postCount
       const categoryExist = await this.client.send<boolean, string>(
         'category_exists',
         update.category

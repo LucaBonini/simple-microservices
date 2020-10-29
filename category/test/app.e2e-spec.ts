@@ -16,7 +16,6 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  // NOT WORKING BECAUSE OF DEPENDECIES
   it('/ (GET)', () => {
     return request(app.getHttpServer())
       .get('/category')
