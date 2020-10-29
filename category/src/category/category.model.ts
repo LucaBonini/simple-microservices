@@ -1,6 +1,6 @@
 export interface Category {
-  id: string,
-  name: string,
-  postCount: number,
+  id: string
+  name: string
+  postCount: number
   productCount: number
 }

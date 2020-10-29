@@ -1,6 +1,6 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
-import { Product } from './product.model';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { v4 as uuidv4 } from 'uuid'
+import { Product } from './product.model'
 import { CreateProductDto, UpdateProductDto } from './dto/product-dto'
 import { ClientOptions, ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices'
 import { DatabaseService } from '../database/database.service'
@@ -8,7 +8,7 @@ import { DatabaseService } from '../database/database.service'
 const microservicesOptions: ClientOptions = {
   transport: Transport.REDIS,
   options: {
-    url: `redis://${process.env.DOCKER == "true" ? 'redis' : 'localhost'}:6379`
+    url: `redis://${process.env.DOCKER == 'true' ? 'redis' : 'localhost'}:6379`
   }
 }
 
@@ -17,15 +17,15 @@ export class ProductService {
   // I set it public to easy test it in the test suite
   public client: ClientProxy
 
-  constructor(private db: DatabaseService ) {
+  constructor (private readonly db: DatabaseService) {
     this.client = ClientProxyFactory.create(microservicesOptions)
   }
 
-  async findAll(): Promise<Product[]> {
-    return this.db.findAll<Product>()
+  async findAll (): Promise<Product[]> {
+    return await this.db.findAll<Product>()
   }
 
-  async findOneById(id: string): Promise<Product> {
+  async findOneById (id: string): Promise<Product> {
     const productFound = await this.db.findOneById<Product>(id)
     if (!productFound) {
       throw new HttpException(`No product with id ${id} found`, HttpStatus.BAD_REQUEST)
@@ -34,11 +34,10 @@ export class ProductService {
     return productFound
   }
 
-  async create(product: CreateProductDto): Promise<Product> {
-    
+  async create (product: CreateProductDto): Promise<Product> {
     const { name, price, category } = product
 
-    let newProduct: Product = {
+    const newProduct: Product = {
       id: uuidv4(),
       name,
       price,
@@ -55,8 +54,7 @@ export class ProductService {
     return res
   }
 
-   async updateProduct(update: UpdateProductDto, id: string): Promise<Product> {
-
+  async updateProduct (update: UpdateProductDto, id: string): Promise<Product> {
     if (update.category) {
       // I miss to handle the case of changing category
       // when update.category !== originalProduct.category
@@ -74,16 +72,15 @@ export class ProductService {
     const updateProduct = await this.db.updateOne<Product>(id, update)
 
     if (!updateProduct) {
-        throw new HttpException(`No product with id ${id} found`, HttpStatus.BAD_REQUEST)
+      throw new HttpException(`No product with id ${id} found`, HttpStatus.BAD_REQUEST)
     }
 
     return updateProduct
   }
 
-  async deleteProduct(id: string): Promise<boolean> {    
-    
+  async deleteProduct (id: string): Promise<boolean> {
     const product = await this.db.findOneById<Product>(id)
-    
+
     const res = await this.db.deleteOne<Product>(id)
     if (!res) {
       throw new HttpException(`No product with id ${id} found`, HttpStatus.BAD_REQUEST)
@@ -93,7 +90,7 @@ export class ProductService {
       'product_removed',
       product
     ).toPromise()
-    
+
     return res
   }
 }

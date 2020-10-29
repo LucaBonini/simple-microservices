@@ -12,7 +12,6 @@ export class CreateProductDto {
 }
 
 export class UpdateProductDto {
-
   @IsOptional()
   name: string
 
@@ -21,5 +20,4 @@ export class UpdateProductDto {
 
   @IsOptional()
   category: string
-
 }

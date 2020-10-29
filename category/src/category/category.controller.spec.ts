@@ -4,18 +4,18 @@ import { CategoryService } from './category.service'
 import { DatabaseService } from '../database/database.service'
 
 describe('CategoryController', () => {
-  let controller: CategoryController;
+  let controller: CategoryController
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CategoryController],
       providers: [CategoryService, DatabaseService]
-    }).compile();
+    }).compile()
 
-    controller = module.get<CategoryController>(CategoryController);
-  });
+    controller = module.get<CategoryController>(CategoryController)
+  })
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
-});
+    expect(controller).toBeDefined()
+  })
+})

@@ -1,14 +1,14 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { v4 as uuidv4 } from 'uuid'
 import { Post } from '../post/post.model'
-import { CreatePostDto, UpdatePostDto } from './dto/post-dto';
+import { CreatePostDto, UpdatePostDto } from './dto/post-dto'
 import { ClientOptions, ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices'
 import { DatabaseService } from '../database/database.service'
 
 const microservicesOptions: ClientOptions = {
   transport: Transport.REDIS,
   options: {
-    url: `redis://${process.env.DOCKER == "true" ? 'redis' : 'localhost'}:6379`
+    url: `redis://${process.env.DOCKER == 'true' ? 'redis' : 'localhost'}:6379`
   }
 }
 
@@ -17,15 +17,15 @@ export class PostService {
   // I set it public to easy test it in the test suite
   public client: ClientProxy
 
-  constructor(private db: DatabaseService) {
+  constructor (private readonly db: DatabaseService) {
     this.client = ClientProxyFactory.create(microservicesOptions)
   }
 
-  async findAll(): Promise<Post[]> {
-    return this.db.findAll<Post>()
+  async findAll (): Promise<Post[]> {
+    return await this.db.findAll<Post>()
   }
 
-  async findOneById(id: string): Promise<Post> {
+  async findOneById (id: string): Promise<Post> {
     const postFound = await this.db.findOneById<Post>(id)
     if (!postFound) {
       throw new HttpException(`No post with id ${id} found`, HttpStatus.BAD_REQUEST)
@@ -34,11 +34,10 @@ export class PostService {
     return postFound
   }
 
-  async create(post: CreatePostDto): Promise<Post> {
-
+  async create (post: CreatePostDto): Promise<Post> {
     const { title, body, category } = post
 
-    let newPost: Post = {
+    const newPost: Post = {
       id: uuidv4(),
       title,
       body,
@@ -55,8 +54,7 @@ export class PostService {
     return res
   }
 
-  async updatePost(update: UpdatePostDto, id: string): Promise<Post> {
-
+  async updatePost (update: UpdatePostDto, id: string): Promise<Post> {
     if (update.category) {
       // I miss to handle the case of changing category
       // when update.category !== originalPost.category
@@ -79,8 +77,7 @@ export class PostService {
     return updatedPost
   }
 
-  async deletePost(id: string): Promise<boolean> {
-
+  async deletePost (id: string): Promise<boolean> {
     const post = await this.db.findOneById<Post>(id)
 
     const res = await this.db.deleteOne<Post>(id)

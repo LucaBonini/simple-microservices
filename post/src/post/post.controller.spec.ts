@@ -4,18 +4,18 @@ import { DatabaseService } from '../database/database.service'
 import { PostService } from '../post/post.service'
 
 describe('PostController', () => {
-  let controller: PostController;
+  let controller: PostController
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PostController],
       providers: [PostService, DatabaseService]
-    }).compile();
+    }).compile()
 
-    controller = module.get<PostController>(PostController);
-  });
+    controller = module.get<PostController>(PostController)
+  })
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
-});
+    expect(controller).toBeDefined()
+  })
+})

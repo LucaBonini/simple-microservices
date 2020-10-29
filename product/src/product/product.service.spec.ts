@@ -1,8 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing'
 import { Product } from './product.model'
 import { ProductService } from './product.service'
-import { DatabaseService } from '../database/database.service';
-import { CreateProductDto, UpdateProductDto } from './dto/product-dto';
+import { DatabaseService } from '../database/database.service'
+import { CreateProductDto, UpdateProductDto } from './dto/product-dto'
 
 const mockDatabaseService = () => ({
   findAll: jest.fn(),
@@ -21,13 +21,13 @@ describe('ProductService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProductService,
-        {provide: DatabaseService, useFactory: mockDatabaseService}
-      ],
-    }).compile();
+        { provide: DatabaseService, useFactory: mockDatabaseService }
+      ]
+    }).compile()
 
-    productService = module.get<ProductService>(ProductService);
+    productService = module.get<ProductService>(ProductService)
     databaseService = module.get<DatabaseService>(DatabaseService)
-  });
+  })
 
   describe('findAll', () => {
     it('Gets all the products', async () => {
@@ -62,26 +62,26 @@ describe('ProductService', () => {
     it('calls databaseService.create() and return the result', async () => {
       expect(databaseService.create).not.toHaveBeenCalled()
 
-      const mockCreatedProduct: Product = {id:'asdfg', name: 'new product', price: 22, category: '123456'}
+      const mockCreatedProduct: Product = { id: 'asdfg', name: 'new product', price: 22, category: '123456' }
       databaseService.create.mockResolvedValue(mockCreatedProduct)
-      
-      const mockCreatePostDto: CreateProductDto = {name: 'new product', price: 22, category: '123456'}
-      const result =  await productService.create(mockCreatePostDto)
+
+      const mockCreatePostDto: CreateProductDto = { name: 'new product', price: 22, category: '123456' }
+      const result = await productService.create(mockCreatePostDto)
 
       expect(result).toEqual(expect.objectContaining({
         id: expect.any(String),
         name: 'new product',
-        price:22,
+        price: 22,
         category: '123456'
       }))
     })
   })
 
-  describe('deleteOne', () => { 
+  describe('deleteOne', () => {
     it('delete the product', async () => {
       expect(databaseService.deleteOne).not.toHaveBeenCalled()
 
-      const mockFoundProduct: Product = { id: 'qwerty', name: 'name', price: 33, category: '123456'}
+      const mockFoundProduct: Product = { id: 'qwerty', name: 'name', price: 33, category: '123456' }
       databaseService.findOneById.mockResolvedValue(mockFoundProduct)
       databaseService.deleteOne.mockResolvedValue(true)
 
@@ -102,8 +102,8 @@ describe('ProductService', () => {
     it('updates the product', async () => {
       expect(databaseService.updateOne).not.toHaveBeenCalled()
 
-      const mockFoundProduct: Product  = { id: 'qwerty', name: 'name', price: 44, category: '123456'}
-      const mockUpdateProductDto: UpdateProductDto = { name: 'name', price: 55, category: '123456'}
+      const mockFoundProduct: Product = { id: 'qwerty', name: 'name', price: 44, category: '123456' }
+      const mockUpdateProductDto: UpdateProductDto = { name: 'name', price: 55, category: '123456' }
       databaseService.updateOne.mockResolvedValue({
         ...mockFoundProduct,
         ...mockUpdateProductDto
@@ -124,8 +124,8 @@ describe('ProductService', () => {
 
     it('should throw an error if the category is not found', () => {
       expect(databaseService.updateOne).not.toHaveBeenCalled()
-      const mockUpdatePostDto: UpdateProductDto = { name: 'name', price: 66, category: '123456'}
-      const mockFoundProduct: Product  = { id: 'qwerty', name: 'name', price: 44, category: '123456'}
+      const mockUpdatePostDto: UpdateProductDto = { name: 'name', price: 66, category: '123456' }
+      const mockFoundProduct: Product = { id: 'qwerty', name: 'name', price: 44, category: '123456' }
       databaseService.updateOne.mockResolvedValue(mockFoundProduct)
 
       productService.client.send = jest.fn().mockReturnValue({
@@ -139,7 +139,7 @@ describe('ProductService', () => {
   describe('deleteProduct', () => {
     it('should delet a product', async () => {
       expect(databaseService.deleteOne).not.toHaveBeenCalled()
-      const mockFoundProduct: Product  = { id: 'qwerty', name: 'name', price: 77, category: '123456'}
+      const mockFoundProduct: Product = { id: 'qwerty', name: 'name', price: 77, category: '123456' }
 
       databaseService.findOneById.mockResolvedValue(mockFoundProduct)
       databaseService.deleteOne.mockResolvedValue(true)
@@ -159,4 +159,4 @@ describe('ProductService', () => {
       expect(productService.deleteProduct('qwerty')).rejects.toThrow()
     })
   })
-});
+})

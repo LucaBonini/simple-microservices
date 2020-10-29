@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Patch, Post, UsePipes, ValidationPipe, Param, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, UsePipes, ValidationPipe, Param, Delete } from '@nestjs/common'
 import { CategoryService } from './category.service'
-import { Category } from './category.model';
-import { CreateOrUpdateCategoryDto } from './dto/create-category-dto';
-import { MessagePattern } from '@nestjs/microservices';
+import { Category } from './category.model'
+import { CreateOrUpdateCategoryDto } from './dto/create-category-dto'
+import { MessagePattern } from '@nestjs/microservices'
 
 interface Product {
   category: string
@@ -14,42 +14,41 @@ interface PostType {
 
 @Controller('category')
 export class CategoryController {
-
-  constructor(private categoryService: CategoryService) {}
+  constructor (private readonly categoryService: CategoryService) {}
 
   @Get()
-  getCategories(): Promise<Category[]> {
+  getCategories (): Promise<Category[]> {
     return this.categoryService.findAll()
   }
 
   @Get('/:id')
-  getCategoryById(@Param('id') id: string): Promise<Category | null> {
+  getCategoryById (@Param('id') id: string): Promise<Category | null> {
     return this.categoryService.findOneById(id)
   }
 
   @Post()
   @UsePipes(ValidationPipe)
-  createCategory(@Body() createCategoryDto: CreateOrUpdateCategoryDto): Promise<Category> {
+  createCategory (@Body() createCategoryDto: CreateOrUpdateCategoryDto): Promise<Category> {
     return this.categoryService.create(createCategoryDto)
   }
 
   @Patch('/:id/name')
   @UsePipes(ValidationPipe)
-  updateCategoryName(
+  updateCategoryName (
     @Param('id') id: string,
-    @Body() categoryUpdate: CreateOrUpdateCategoryDto
+      @Body() categoryUpdate: CreateOrUpdateCategoryDto
   ): Promise<Category> {
     const { name } = categoryUpdate
     return this.categoryService.updateCategoryName(id, name)
   }
 
   @Delete('/:id')
-  deleteCategory(@Param('id') id: string): Promise<boolean> {
+  deleteCategory (@Param('id') id: string): Promise<boolean> {
     return this.categoryService.deleteCategory(id)
   }
 
   @MessagePattern('product_removed')
-  async subtractProductCount(product: Product): Promise<void> {
+  async subtractProductCount (product: Product): Promise<void> {
     if (product.category) {
       const res: Category = await this.categoryService.findOneById(product.category)
       if (res) {
@@ -59,7 +58,7 @@ export class CategoryController {
   }
 
   @MessagePattern('product_added')
-  async addProductCount(product: Product): Promise<void> {
+  async addProductCount (product: Product): Promise<void> {
     if (product.category) {
       const res: Category = await this.categoryService.findOneById(product.category)
       if (res) {
@@ -69,7 +68,7 @@ export class CategoryController {
   }
 
   @MessagePattern('category_exists')
-  async categoryExist(id: string): Promise<boolean> {
+  async categoryExist (id: string): Promise<boolean> {
     try {
       const res: Category = await this.categoryService.findOneById(id)
       return !!res
@@ -79,7 +78,7 @@ export class CategoryController {
   }
 
   @MessagePattern('post_added')
-  async addPostcount(post: PostType): Promise<void> {
+  async addPostcount (post: PostType): Promise<void> {
     if (post.category) {
       const res: Category = await this.categoryService.findOneById(post.category)
       if (res) {
@@ -89,7 +88,7 @@ export class CategoryController {
   }
 
   @MessagePattern('post_removed')
-  async subtractPostCount(post: PostType): Promise<void> {
+  async subtractPostCount (post: PostType): Promise<void> {
     if (post.category) {
       const res: Category = await this.categoryService.findOneById(post.category)
       if (res) {
