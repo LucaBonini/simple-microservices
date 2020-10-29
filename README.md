@@ -4,6 +4,8 @@ Simple microservices oriented backend, which exposes a web API that allows to ma
 
 Written in Typescript using [NestJs](https://nestjs.com/), [lowDb](https://github.com/typicode/lowdb) as database and [Redis](https://redis.io/) as message broker
 
+The code has been written following [Javascript Standard Style](https://standardjs.com/)
+
 ### Requirements:
   - [Docker](https://www.docker.com/), [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/)
 
