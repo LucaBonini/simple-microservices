@@ -125,9 +125,38 @@ describe('ProductService', () => {
     it('should throw an error if the category is not found', () => {
       expect(databaseService.updateOne).not.toHaveBeenCalled()
       const mockUpdatePostDto: UpdateProductDto = { name: 'name', price: 66, category: '123456'}
-      databaseService.updateOne.mockResolvedValue(undefined)
+      const mockFoundProduct: Product  = { id: 'qwerty', name: 'name', price: 44, category: '123456'}
+      databaseService.updateOne.mockResolvedValue(mockFoundProduct)
+
+      productService.client.send = jest.fn().mockReturnValue({
+        toPromise: () => false
+      })
 
       expect(productService.updateProduct(mockUpdatePostDto, '123456')).rejects
+    })
+  })
+
+  describe('deleteProduct', () => {
+    it('should delet a product', async () => {
+      expect(databaseService.deleteOne).not.toHaveBeenCalled()
+      const mockFoundProduct: Product  = { id: 'qwerty', name: 'name', price: 77, category: '123456'}
+
+      databaseService.findOneById.mockResolvedValue(mockFoundProduct)
+      databaseService.deleteOne.mockResolvedValue(true)
+
+      productService.client.send = jest.fn().mockReturnValue({
+        toPromise: () => true
+      })
+      const result = await productService.deleteProduct('qwerty')
+      expect(result).toEqual(true)
+    })
+
+    it('should throw en arror if the product is not found', () => {
+      expect(databaseService.deleteOne).not.toHaveBeenCalled()
+
+      databaseService.findOneById.mockResolvedValue(undefined)
+
+      expect(productService.deleteProduct('qwerty')).rejects.toThrow()
     })
   })
 });

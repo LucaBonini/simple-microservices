@@ -13,6 +13,8 @@ const mockDatabaseService = () => ({
   updateOne: jest.fn()
 })
 
+afterEach((done) => done())
+
 describe('PostService', () => {
   let postService: PostService
   let databaseService
@@ -124,7 +126,12 @@ describe('PostService', () => {
     it('should throw an error if the category is not found', () => {
       expect(databaseService.updateOne).not.toHaveBeenCalled()
       const mockUpdatePostDto: UpdatePostDto = { title: 'title', body: 'new body', category: '123456'}
-      databaseService.updateOne.mockResolvedValue(undefined)
+      const mockFoundPost: Post  = { id: 'qwerty', title: 'title', body: 'body', category: '123456'}
+      databaseService.updateOne.mockResolvedValue(mockFoundPost)
+
+      postService.client.send = jest.fn().mockReturnValue({
+        toPromise: () => false
+      })
 
       expect(postService.updatePost(mockUpdatePostDto, '123456')).rejects
     })
