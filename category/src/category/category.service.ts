@@ -36,9 +36,8 @@ export class CategoryService {
       name
     }
 
-    await this.db.create<Category>(newCategory)
+    return await this.db.create<Category>(newCategory)
 
-    return newCategory
   }
 
   async updateCategoryName(id: string, name: string): Promise<Category> {
