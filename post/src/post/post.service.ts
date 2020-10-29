@@ -14,6 +14,7 @@ const microservicesOptions: ClientOptions = {
 
 @Injectable()
 export class PostService {
+  // I set it public to easy test it in the test suite
   public client: ClientProxy
 
   constructor(private db: DatabaseService) {

@@ -39,18 +39,13 @@ describe('PostService', () => {
 
   describe('findOneById', () => {
     it('Gets the post by id', async () => {
-      const mockPost = {
+      const mockPost: Post = {
         id: 'qwerty',
         title: 'category name',
         body: 'body',
         category: '123456'
       }
-      databaseService.findOneById.mockResolvedValue({
-        id: 'qwerty',
-        title: 'category name',
-        body: 'body',
-        category: '123456'
-      })
+      databaseService.findOneById.mockResolvedValue(mockPost)
 
       const result = await postService.findOneById('qwerty')
       expect(result).toEqual(mockPost)
