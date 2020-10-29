@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoryService } from './category.service';
 import { DatabaseService } from '../database/database.service'
+import { Category } from './category.model';
 
 const mockDatabaseService = () => ({
   findAll: jest.fn(),
@@ -125,6 +126,30 @@ describe('CategoryService', () => {
       databaseService.updateOne.mockResolvedValue(undefined)
 
       expect(categoryService.updateCategoryName('qwerty', 'new category name')).rejects
+    })
+  })
+
+  describe('updateEntityCount', () => {
+    it('should increase the productCount', async () => {
+      expect(databaseService.updateOne).not.toHaveBeenCalled()
+
+      const mockCategory: Category = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0}
+      databaseService.updateOne.mockResolvedValue({
+        ...mockCategory,
+        productCount: ++mockCategory.productCount
+      })
+
+      const result = await categoryService.updateEntityCount(mockCategory, 'productCount', 'add')
+      expect(result).toEqual(true)
+    })
+
+    it('should not subtract the productCount', async () => {
+      expect(databaseService.updateOne).not.toHaveBeenCalled()
+      
+      const mockCategory: Category = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0}
+
+      const result = await categoryService.updateEntityCount(mockCategory, 'productCount', 'add')
+      expect(result).toEqual(true)
     })
   })
 });
