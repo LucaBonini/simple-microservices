@@ -9,6 +9,8 @@ Written in Typescript using [NestJs](https://nestjs.com/), [lowDb](https://githu
 
 ### How to run it
 
+- clone the project
+
 - Open a terminal window in the root folder
   `docker-compose up`
 
@@ -27,5 +29,5 @@ Written in Typescript using [NestJs](https://nestjs.com/), [lowDb](https://githu
   `http://localhost:3001/product`
 
 
-### note
+### Note
 if you use Postman to make requests then the body as to be `x-www-urlencoded`
