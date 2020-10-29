@@ -29,4 +29,4 @@ Written in Typescript using [NestJs](https://nestjs.com/), [lowDb](https://githu
 
 
 ### Note
-if you use Postman to make requests then the body as to be `x-www-urlencoded`
+if you use Postman to make requests then the body has to be `x-www-urlencoded`
