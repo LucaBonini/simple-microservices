@@ -14,7 +14,7 @@ const microservicesOptions: ClientOptions = {
 
 @Injectable()
 export class PostService {
-  private client: ClientProxy
+  public client: ClientProxy
 
   constructor(private db: DatabaseService) {
     this.client = ClientProxyFactory.create(microservicesOptions)
