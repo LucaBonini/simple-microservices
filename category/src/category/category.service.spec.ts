@@ -86,7 +86,7 @@ describe('CategoryService', () => {
     it('delete the category if productCount and postCount are 0', async () => {
       expect(databaseService.deleteOne).not.toHaveBeenCalled()
 
-      const mockFoundCategory = { id: 'qwerty', name: 'found category', productCount: 0, postCount: 0}
+      const mockFoundCategory: Category = { id: 'qwerty', name: 'found category', productCount: 0, postCount: 0}
       databaseService.findOneById.mockResolvedValue(mockFoundCategory)
       databaseService.deleteOne.mockResolvedValue(true)
 
@@ -97,7 +97,7 @@ describe('CategoryService', () => {
     it('throws an error if productCount or postCount are not 0', () => {
       expect(databaseService.deleteOne).not.toHaveBeenCalled()
 
-      const mockFoundCategory = { id: 'qwerty', name: 'found category', productCount: 1, postCount: 0}
+      const mockFoundCategory: Category  = { id: 'qwerty', name: 'found category', productCount: 1, postCount: 0}
       databaseService.findOneById.mockResolvedValue(mockFoundCategory)
 
       expect(categoryService.deleteCategory('qwerty')).rejects.toThrow()
@@ -108,7 +108,7 @@ describe('CategoryService', () => {
     it('updates the category name', async () => {
       expect(databaseService.updateOne).not.toHaveBeenCalled()
 
-      const mockFoundCategory = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0}
+      const mockFoundCategory: Category  = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0}
       databaseService.updateOne.mockResolvedValue(mockFoundCategory)
 
       const result = await categoryService.updateCategoryName('qwerty', 'new category name')
@@ -145,10 +145,33 @@ describe('CategoryService', () => {
 
     it('should not subtract the productCount', async () => {
       expect(databaseService.updateOne).not.toHaveBeenCalled()
-      
+
       const mockCategory: Category = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0}
 
       const result = await categoryService.updateEntityCount(mockCategory, 'productCount', 'add')
+      expect(result).toEqual(true)
+    })
+
+    it('should increase the postCount', async () => {
+      expect(databaseService.updateOne).not.toHaveBeenCalled()
+
+      const mockCategory: Category = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0}
+      databaseService.updateOne.mockResolvedValue({
+        ...mockCategory,
+        postCount: ++mockCategory.postCount
+      })
+
+      const result = await categoryService.updateEntityCount(mockCategory, 'postCount', 'add')
+      expect(result).toEqual(true)
+    })
+
+
+    it('should not subtract the postCount', async () => {
+      expect(databaseService.updateOne).not.toHaveBeenCalled()
+
+      const mockCategory: Category = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0}
+
+      const result = await categoryService.updateEntityCount(mockCategory, 'postCount', 'add')
       expect(result).toEqual(true)
     })
   })
