@@ -5,7 +5,7 @@ Simple microservices oriented backend, which exposes a web API that allows to ma
 Written in Typescript using [NestJs](https://nestjs.com/), [lowDb](https://github.com/typicode/lowdb) as database and [Redis](https://redis.io/) as message broker
 
 ### Requirements:
-  - Docker, [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/)
+  - [Docker](https://www.docker.com/), [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/)
 
 ### How to run it
 
@@ -25,7 +25,6 @@ Written in Typescript using [NestJs](https://nestjs.com/), [lowDb](https://githu
   `http://localhost:3002/post`
 
 - Product
-
   `http://localhost:3001/product`
 
 
