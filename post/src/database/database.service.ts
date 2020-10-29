@@ -55,6 +55,7 @@ export class DatabaseService {
     const valueFound = this.findOneById(id)
     if (valueFound) {
       values = values.filter(val => val.id !== id)
+      await this.db.set(this.dataStore, values).write()
       return true
     } else {
       return false

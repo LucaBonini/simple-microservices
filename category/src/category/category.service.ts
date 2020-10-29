@@ -66,12 +66,18 @@ export class CategoryService {
 
   async updateEntityCount(category: Category, entity: string, operation: string): Promise<boolean> {
     const field = EntityField[entity]
-    const updatedCategory = {
-      ...category,
-      [field]: (operation == 'add') ? ++category[field] : --category[field]
+
+    if ((operation === 'subtract' && category[field] > 0) || operation == 'add') {
+      const updatedCategory = {
+        ...category,
+        [field]: (operation == 'add') ? ++category[field] : --category[field]
+      }
+  
+      const res = await this.db.updateOne<Category>(updatedCategory.id, updatedCategory)
+      return true
+    } else {
+      return false
     }
 
-    const res = await this.db.updateOne<Category>(updatedCategory.id, updatedCategory)
-    return 
   }
 }
