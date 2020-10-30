@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { CategoryService } from './category.service';
+import { Test, TestingModule } from '@nestjs/testing'
+import { CategoryService } from './category.service'
 import { DatabaseService } from '../database/database.service'
-import { Category } from './category.model';
+import { Category } from './category.model'
 
 const mockDatabaseService = () => ({
   findAll: jest.fn(),
@@ -20,13 +20,13 @@ describe('CategoryService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CategoryService,
-        {provide: DatabaseService, useFactory: mockDatabaseService}
-      ],
-    }).compile();
+        { provide: DatabaseService, useFactory: mockDatabaseService }
+      ]
+    }).compile()
 
-    categoryService = module.get<CategoryService>(CategoryService);
+    categoryService = module.get<CategoryService>(CategoryService)
     databaseService = module.get<DatabaseService>(DatabaseService)
-  });
+  })
 
   describe('findAll', () => {
     it('Gets all the categories', async () => {
@@ -35,9 +35,8 @@ describe('CategoryService', () => {
       expect(databaseService.findAll).toHaveBeenCalled()
       expect(result).toEqual('value')
     })
-
   })
-  
+
   describe('findOneById', () => {
     it('Gets the category by id', async () => {
       const mockCategory = {
@@ -67,26 +66,26 @@ describe('CategoryService', () => {
     it('calls databaseService.create() and return the result', async () => {
       expect(databaseService.create).not.toHaveBeenCalled()
 
-      const mockCreatedCategory = {id:'asdfg', name: 'new category', productCount: 0, postCount: 0}
+      const mockCreatedCategory = { id: 'asdfg', name: 'new category', productCount: 0, postCount: 0 }
       databaseService.create.mockResolvedValue(mockCreatedCategory)
-      
-      const mockNewCategoryDto = { name: 'new category'}
-      const result =  await categoryService.create(mockNewCategoryDto)
+
+      const mockNewCategoryDto = { name: 'new category' }
+      const result = await categoryService.create(mockNewCategoryDto)
 
       expect(result).toEqual(expect.objectContaining({
         id: expect.any(String),
         name: 'new category',
         postCount: 0,
-        productCount: 0,
+        productCount: 0
       }))
     })
   })
 
-  describe('deleteOne', () => { 
+  describe('deleteOne', () => {
     it('delete the category if productCount and postCount are 0', async () => {
       expect(databaseService.deleteOne).not.toHaveBeenCalled()
 
-      const mockFoundCategory: Category = { id: 'qwerty', name: 'found category', productCount: 0, postCount: 0}
+      const mockFoundCategory: Category = { id: 'qwerty', name: 'found category', productCount: 0, postCount: 0 }
       databaseService.findOneById.mockResolvedValue(mockFoundCategory)
       databaseService.deleteOne.mockResolvedValue(true)
 
@@ -97,7 +96,7 @@ describe('CategoryService', () => {
     it('throws an error if productCount or postCount are not 0', () => {
       expect(databaseService.deleteOne).not.toHaveBeenCalled()
 
-      const mockFoundCategory: Category  = { id: 'qwerty', name: 'found category', productCount: 1, postCount: 0}
+      const mockFoundCategory: Category = { id: 'qwerty', name: 'found category', productCount: 1, postCount: 0 }
       databaseService.findOneById.mockResolvedValue(mockFoundCategory)
 
       expect(categoryService.deleteCategory('qwerty')).rejects.toThrow()
@@ -108,7 +107,7 @@ describe('CategoryService', () => {
     it('updates the category name', async () => {
       expect(databaseService.updateOne).not.toHaveBeenCalled()
 
-      const mockFoundCategory: Category  = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0}
+      const mockFoundCategory: Category = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0 }
       databaseService.updateOne.mockResolvedValue(mockFoundCategory)
 
       const result = await categoryService.updateCategoryName('qwerty', 'new category name')
@@ -116,7 +115,7 @@ describe('CategoryService', () => {
         id: expect.any(String),
         name: 'new category name',
         postCount: expect.any(Number),
-        productCount: expect.any(Number),
+        productCount: expect.any(Number)
       }))
     })
 
@@ -133,7 +132,7 @@ describe('CategoryService', () => {
     it('should increase the productCount', async () => {
       expect(databaseService.updateOne).not.toHaveBeenCalled()
 
-      const mockCategory: Category = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0}
+      const mockCategory: Category = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0 }
       databaseService.updateOne.mockResolvedValue({
         ...mockCategory,
         productCount: ++mockCategory.productCount
@@ -146,7 +145,7 @@ describe('CategoryService', () => {
     it('should not subtract the productCount', async () => {
       expect(databaseService.updateOne).not.toHaveBeenCalled()
 
-      const mockCategory: Category = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0}
+      const mockCategory: Category = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0 }
 
       const result = await categoryService.updateEntityCount(mockCategory, 'productCount', 'add')
       expect(result).toEqual(true)
@@ -155,7 +154,7 @@ describe('CategoryService', () => {
     it('should increase the postCount', async () => {
       expect(databaseService.updateOne).not.toHaveBeenCalled()
 
-      const mockCategory: Category = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0}
+      const mockCategory: Category = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0 }
       databaseService.updateOne.mockResolvedValue({
         ...mockCategory,
         postCount: ++mockCategory.postCount
@@ -165,14 +164,13 @@ describe('CategoryService', () => {
       expect(result).toEqual(true)
     })
 
-
     it('should not subtract the postCount', async () => {
       expect(databaseService.updateOne).not.toHaveBeenCalled()
 
-      const mockCategory: Category = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0}
+      const mockCategory: Category = { id: 'qwerty', name: 'new category name', productCount: 0, postCount: 0 }
 
       const result = await categoryService.updateEntityCount(mockCategory, 'postCount', 'add')
       expect(result).toEqual(true)
     })
   })
-});
+})

@@ -4,6 +4,8 @@ Simple microservices oriented backend, which exposes a web API that allows to ma
 
 Written in Typescript using [NestJs](https://nestjs.com/), [lowDb](https://github.com/typicode/lowdb) as database and [Redis](https://redis.io/) as message broker
 
+The code has been written following [Javascript Standard Style](https://standardjs.com/)
+
 ### Requirements:
   - [Docker](https://www.docker.com/), [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/)
 
@@ -18,14 +20,26 @@ Written in Typescript using [NestJs](https://nestjs.com/), [lowDb](https://githu
 
 ### How to access the services
 
-- Category 
-  `http://localhost:3003/category`
+Category 
+- Get all the categories `[GET] http://localhost:3003/category`
+- Get a category by id `[GET] http://localhost:3003/category/:id`
+- Create a new category `[POST] http://localhost:3003/category`
+- Edit a category `[PATCH] http://localhost:3003/category/:id/name`
+- Delete a category `[DELETE] http://localhost:3003/category/:id`
 
-- Post
-  `http://localhost:3002/post`
+Post
+- Get all the posts `[GET] http://localhost:3003/post`
+- Get a post by id `[GET] http://localhost:3003/post/:id`
+- Create a new post `[POST] http://localhost:3003/post`
+- Edit a posy `[PUT] http://localhost:3003/put/:id`
+- Delete a post `[DELETE] http://localhost:3003/post/:id`
 
-- Product
-  `http://localhost:3001/product`
+Product
+- Get all the products `[GET] http://localhost:3003/product`
+- Get a product by id `[GET] http://localhost:3003/product/:id`
+- Create a new product `[POST] http://localhost:3003/product`
+- Edit a posy `[PUT] http://localhost:3003/put/:id`
+- Delete a product `[DELETE] http://localhost:3003/product/:id`
 
 
 ### Note

@@ -1,8 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { DatabaseService } from '../database/database.service';
-import { CreatePostDto, UpdatePostDto } from './dto/post-dto';
-import { Post } from './post.model';
-import { PostService } from './post.service';
+import { Test, TestingModule } from '@nestjs/testing'
+import { DatabaseService } from '../database/database.service'
+import { CreatePostDto, UpdatePostDto } from './dto/post-dto'
+import { Post } from './post.model'
+import { PostService } from './post.service'
 
 const mockDatabaseService = () => ({
   findAll: jest.fn(),
@@ -22,13 +22,13 @@ describe('PostService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PostService,
-        {provide: DatabaseService, useFactory: mockDatabaseService}
-      ],
-    }).compile();
+        { provide: DatabaseService, useFactory: mockDatabaseService }
+      ]
+    }).compile()
 
-    postService = module.get<PostService>(PostService);
+    postService = module.get<PostService>(PostService)
     databaseService = module.get<DatabaseService>(DatabaseService)
-  });
+  })
 
   describe('findAll', () => {
     it('Gets all the posts', async () => {
@@ -63,11 +63,11 @@ describe('PostService', () => {
     it('calls databaseService.create() and return the result', async () => {
       expect(databaseService.create).not.toHaveBeenCalled()
 
-      const mockCreatedPost: Post = {id:'asdfg', title: 'new post', body: 'body', category: '123456'}
+      const mockCreatedPost: Post = { id: 'asdfg', title: 'new post', body: 'body', category: '123456' }
       databaseService.create.mockResolvedValue(mockCreatedPost)
-      
-      const mockCreatePostDto: CreatePostDto = { title: 'new post', body: 'body', category: '123456'}
-      const result =  await postService.create(mockCreatePostDto)
+
+      const mockCreatePostDto: CreatePostDto = { title: 'new post', body: 'body', category: '123456' }
+      const result = await postService.create(mockCreatePostDto)
 
       expect(result).toEqual(expect.objectContaining({
         id: expect.any(String),
@@ -78,11 +78,11 @@ describe('PostService', () => {
     })
   })
 
-  describe('deleteOne', () => { 
+  describe('deleteOne', () => {
     it('delete the post', async () => {
       expect(databaseService.deleteOne).not.toHaveBeenCalled()
 
-      const mockFoundPost: Post = { id: 'qwerty', title: 'title', body: 'body', category: '123456'}
+      const mockFoundPost: Post = { id: 'qwerty', title: 'title', body: 'body', category: '123456' }
       databaseService.findOneById.mockResolvedValue(mockFoundPost)
       databaseService.deleteOne.mockResolvedValue(true)
 
@@ -103,8 +103,8 @@ describe('PostService', () => {
     it('updates the post', async () => {
       expect(databaseService.updateOne).not.toHaveBeenCalled()
 
-      const mockFoundPost: Post  = { id: 'qwerty', title: 'title', body: 'body', category: '123456'}
-      const mockUpdatePostDto: UpdatePostDto = { title: 'title', body: 'new body', category: '123456'}
+      const mockFoundPost: Post = { id: 'qwerty', title: 'title', body: 'body', category: '123456' }
+      const mockUpdatePostDto: UpdatePostDto = { title: 'title', body: 'new body', category: '123456' }
       databaseService.updateOne.mockResolvedValue({
         ...mockFoundPost,
         ...mockUpdatePostDto
@@ -125,8 +125,8 @@ describe('PostService', () => {
 
     it('should throw an error if the category is not found', () => {
       expect(databaseService.updateOne).not.toHaveBeenCalled()
-      const mockUpdatePostDto: UpdatePostDto = { title: 'title', body: 'new body', category: '123456'}
-      const mockFoundPost: Post  = { id: 'qwerty', title: 'title', body: 'body', category: '123456'}
+      const mockUpdatePostDto: UpdatePostDto = { title: 'title', body: 'new body', category: '123456' }
+      const mockFoundPost: Post = { id: 'qwerty', title: 'title', body: 'body', category: '123456' }
       databaseService.updateOne.mockResolvedValue(mockFoundPost)
 
       postService.client.send = jest.fn().mockReturnValue({
@@ -140,7 +140,7 @@ describe('PostService', () => {
   describe('deletePost', () => {
     it('should delet a post', async () => {
       expect(databaseService.deleteOne).not.toHaveBeenCalled()
-      const mockFoundPost: Post  = { id: 'qwerty', title: 'title', body: 'body', category: '123456'}
+      const mockFoundPost: Post = { id: 'qwerty', title: 'title', body: 'body', category: '123456' }
 
       databaseService.findOneById.mockResolvedValue(mockFoundPost)
       databaseService.deleteOne.mockResolvedValue(true)
@@ -160,5 +160,4 @@ describe('PostService', () => {
       expect(postService.deletePost('qwerty')).rejects.toThrow()
     })
   })
-
-});
+})
