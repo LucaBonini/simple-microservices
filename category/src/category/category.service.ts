@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Category } from 'src/category/category.model';
 import { CreateOrUpdateCategoryDto } from 'src/category/dto/create-category-dto';
 import { v4 as uuidv4 } from 'uuid';
@@ -20,7 +20,7 @@ export class CategoryService {
   async findOneById(id: string): Promise<Category> {
     const categoryFound = await this.db.findOneById<Category>(id)
     if (!categoryFound) {
-      throw new HttpException(`No category with id ${id} found`, HttpStatus.BAD_REQUEST)
+      throw new NotFoundException(`No category with id ${id} found`)
     }
 
     return categoryFound
@@ -44,7 +44,7 @@ export class CategoryService {
 
     const updatedCategory = await this.db.updateOne<Category>(id, { name })
     if (!updatedCategory) {
-      throw new HttpException('No category found', HttpStatus.BAD_REQUEST)
+      throw new NotFoundException('No category found')
     }
     return updatedCategory
   }
@@ -53,13 +53,13 @@ export class CategoryService {
 
     const foundCategory = await this.db.findOneById<Category>(id)
     if (!foundCategory) {
-      throw new HttpException('No category found', HttpStatus.BAD_REQUEST)
+      throw new NotFoundException('No category found')
     }
 
     if(!foundCategory.productCount && !foundCategory.postCount) {
       return await this.db.deleteOne<Category>(id)
     } else {
-      throw new HttpException('Category has products or posts', HttpStatus.FORBIDDEN)
+      throw new NotFoundException('Category has products or posts')
     }
   }
 

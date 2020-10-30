@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { Post } from '../post/post.model'
 import { CreatePostDto, UpdatePostDto } from './dto/post-dto';
@@ -28,7 +28,7 @@ export class PostService {
   async findOneById(id: string): Promise<Post> {
     const postFound = await this.db.findOneById<Post>(id)
     if (!postFound) {
-      throw new HttpException(`No post with id ${id} found`, HttpStatus.BAD_REQUEST)
+      throw new NotFoundException(`No post with id ${id} found`)
     }
 
     return postFound
@@ -67,13 +67,13 @@ export class PostService {
       ).toPromise()
 
       if (!categoryExist) {
-        throw new HttpException(`No product with category id ${update.category} found`, HttpStatus.BAD_REQUEST)
+        throw new NotFoundException(`No product with category id ${update.category} found`)
       }
     }
 
     const updatedPost = await this.db.updateOne<Post>(id, update)
     if (!updatedPost) {
-      throw new HttpException(`No post with id ${id} found`, HttpStatus.BAD_REQUEST)
+      throw new NotFoundException(`No post with id ${id} found`)
     }
 
     return updatedPost
@@ -85,7 +85,7 @@ export class PostService {
 
     const res = await this.db.deleteOne<Post>(id)
     if (!res) {
-      throw new HttpException(`No post with id ${id} found`, HttpStatus.BAD_REQUEST)
+      throw new NotFoundException(`No post with id ${id} found`)
     }
 
     this.client.send<void, Post>(

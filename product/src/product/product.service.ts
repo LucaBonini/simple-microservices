@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { Product } from './product.model';
 import { CreateProductDto, UpdateProductDto } from './dto/product-dto'
@@ -28,7 +28,7 @@ export class ProductService {
   async findOneById(id: string): Promise<Product> {
     const productFound = await this.db.findOneById<Product>(id)
     if (!productFound) {
-      throw new HttpException(`No product with id ${id} found`, HttpStatus.BAD_REQUEST)
+      throw new NotFoundException(`No product with id ${id} found`)
     }
 
     return productFound
@@ -67,14 +67,14 @@ export class ProductService {
       ).toPromise()
 
       if (!categoryExist) {
-        throw new HttpException(`No product with category id ${update.category} found`, HttpStatus.BAD_REQUEST)
+        throw new NotFoundException(`No product with category id ${update.category} found`)
       }
     }
 
     const updateProduct = await this.db.updateOne<Product>(id, update)
 
     if (!updateProduct) {
-        throw new HttpException(`No product with id ${id} found`, HttpStatus.BAD_REQUEST)
+        throw new NotFoundException(`No product with id ${id} found`)
     }
 
     return updateProduct
@@ -84,9 +84,10 @@ export class ProductService {
     
     const product = await this.db.findOneById<Product>(id)
     
-    const res = await this.db.deleteOne<Product>(id)
+		const res = await this.db.deleteOne<Product>(id)
+		console.log(res, 'RESSS')
     if (!res) {
-      throw new HttpException(`No product with id ${id} found`, HttpStatus.BAD_REQUEST)
+      throw new NotFoundException(`No product with id ${id} found`)
     }
 
     this.client.send<void, Product>(
