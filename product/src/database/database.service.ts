@@ -35,7 +35,6 @@ export class DatabaseService {
     const values: T[] = await this.db.get(this.dataStore).value()
 
     const valueFound = values.find(obj => obj.id === id)
-
     return valueFound
   }
 
@@ -52,7 +51,8 @@ export class DatabaseService {
   async deleteOne<T extends Value>(id: string): Promise<boolean> {
     let values: T[] = await this.db.get(this.dataStore).value()
 
-    const valueFound = this.findOneById(id)
+		const valueFound = await this.findOneById(id)
+
     if (valueFound) {
       values = values.filter(val => val.id !== id)
       await this.db.set(this.dataStore, values).write()
